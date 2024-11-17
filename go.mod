@@ -1,12 +1,13 @@
 module github.com/words-reminder-api
 
-go 1.19
+go 1.22
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-contrib/cors v1.7.1
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-sql-driver/mysql v1.7.0
+	github.com/joho/godotenv v1.5.1
 	github.com/sirupsen/logrus v1.9.0
 	golang.org/x/crypto v0.21.0
 )
