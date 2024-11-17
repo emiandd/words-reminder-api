@@ -2,8 +2,8 @@ package queries
 
 const (
 	SQLCreateNewWord = `
-	INSERT INTO word (content, status, user_id, youglish, created, translation)
-	VALUES (?, ?, ?, ?, ?, ?)`
+	INSERT INTO word (content, status, youglish, created, translation)
+	VALUES (?, ?, ?, ?, ?)`
 
 	SQLFetchWordsColumns = `
 	w.word_id,

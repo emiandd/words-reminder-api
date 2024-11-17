@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"github.com/words-reminder-api/api/middlewares"
 	"github.com/words-reminder-api/api/routes"
 )
@@ -12,6 +13,7 @@ func main() {
 }
 
 func start() {
+	_ = godotenv.Load(".env")
 	r := gin.Default()
 
 	// Agrega middleware CORS

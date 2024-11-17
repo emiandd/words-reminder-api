@@ -1,35 +1,53 @@
 package drivers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/words-reminder-api/api/models"
+	"github.com/words-reminder-api/helpers"
 	"github.com/words-reminder-api/internal/provider"
 )
+
+type GPTResp struct {
+	ID      string   `json:"id"`
+	Object  string   `json:"object"`
+	Created int      `json:"created"`
+	Model   string   `json:"model"`
+	Choices []Choice `json:"choices"`
+}
+
+type Choice struct {
+	Index   int `json:"index"`
+	Message `json:"message"`
+}
+
+type Message struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
 
 func CreateNewWord(c *gin.Context, newWord *models.Word) error {
 
 	var container provider.ContainerRep = provider.GETContainer()
 	var f models.WordFilter
 	f.Content = newWord.Content
-	// f.UserID = newWord.UserID
 
 	fmt.Println("searching word...", f.Content)
 	word, err := container.Word().Search(c, f)
 	if err != nil {
-		err = errors.New("executing Search: " + err.Error())
-
-		return err
+		if err != sql.ErrNoRows {
+			err = errors.New("executing Search: " + err.Error())
+			return err
+		}
 	}
 
-	fmt.Println("WORD: ", word)
-	if word.ID > 0 {
-
+	if word != nil && word.ID > 0 {
 		f.UserID = newWord.UserID
 		f.WordID = word.ID
 		wordSearched, err := container.Word().SearchByUserID(c, f)
@@ -50,41 +68,53 @@ func CreateNewWord(c *gin.Context, newWord *models.Word) error {
 		}
 	}
 
-	url := "https://microsoft-translator-text.p.rapidapi.com/translate?api-version=3.0&to%5B0%5D=es&textType=plain&profanityAction=NoAction"
-	payload := strings.NewReader(fmt.Sprintf("[\r\n    {\r\n        \"Text\": \"%s\"\r\n    }\r\n]", newWord.Content))
-	req, _ := http.NewRequest("POST", url, payload)
+	apiURL := "https://api.openai.com/v1/chat/completions"
+	apiKey := os.Getenv("GPT_API_KEY")
 
-	req.Header.Add("content-type", "application/json")
-	req.Header.Add("X-RapidAPI-Key", "673c914583msh8abafbd0616306ap11b024jsn6853dd934fb1")
-	req.Header.Add("X-RapidAPI-Host", "microsoft-translator-text.p.rapidapi.com")
+	requestBody := map[string]interface{}{
+		"model": "gpt-4o-mini",
+		"messages": []map[string]string{
+			{"role": "user", "content": "Traduce la siguiente palabra al español: " + f.Content + ". Importante: Retorna solo la palabra traducida."},
+		},
+		"max_tokens":  50,
+		"temperature": 0.1,
+	}
 
-	res, err := http.DefaultClient.Do(req)
+	headers := map[string]string{
+		"Content-Type":  "application/json",
+		"Authorization": "Bearer " + apiKey,
+	}
+
+	res, err := helpers.MakeHTTPRequest("POST", apiURL, headers, requestBody)
+	if err != nil {
+		return errors.New("error executing MakeHTTPRequest: " + err.Error())
+	}
+
+	var gr GPTResp
+	err = json.Unmarshal(res, &gr)
 	if err != nil {
 		return err
 	}
 
-	defer res.Body.Close()
-
-	respTranslatorApi := make([]interface{}, 1)
-
-	err = json.NewDecoder(res.Body).Decode(&respTranslatorApi)
-	if err != nil {
-		return err
-	}
-
-	dataMap, ok := (respTranslatorApi[0]).(map[string]interface{})
-	if !ok {
-		return errors.New("respTranslatorApi assertion type failed")
-	}
-
-	translations := dataMap["translations"].([]interface{})
-	translationsMap := translations[0].(map[string]interface{})
-	newWord.Translation = strings.ToLower(translationsMap["text"].(string))
+	newWord.Content = strings.ToLower(newWord.Content)
+	translation := strings.ReplaceAll(gr.Choices[0].Content, ".", "")
+	newWord.Translation = strings.ToLower(translation)
 
 	err = container.Word().Create(c, newWord)
 	if err != nil {
 		return err
 	}
+
+	word, err = container.Word().Search(c, f)
+	if err != nil {
+		return err
+	}
+
+	err = container.Word().Link(c, newWord.UserID, word.ID)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

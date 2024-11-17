@@ -48,7 +48,7 @@ func (w *Word) Create(c *gin.Context, data *Word) error {
 
 	q := queries.SQLCreateNewWord
 
-	result, err := db.Exec(q, data.Content, data.Status, data.UserID, data.YouGlish, time.Now(), data.Translation)
+	result, err := db.Exec(q, data.Content, data.Status, data.YouGlish, time.Now(), data.Translation)
 	if err != nil {
 		err = fmt.Errorf("error executing query: %s \n %v", q, err)
 		return err
@@ -129,6 +129,9 @@ func (w *Word) Search(c *gin.Context, f WordFilter) (*Word, error) {
 	)
 
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, err
+		}
 		err = fmt.Errorf("error executing query: %s \n %v", q, err)
 		return nil, err
 	}
