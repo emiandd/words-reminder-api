@@ -1,8 +1,11 @@
 package main
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/words-reminder-api/api/v1"
+	"github.com/joho/godotenv"
+	"github.com/words-reminder-api/api/middlewares"
+	"github.com/words-reminder-api/api/routes"
 )
 
 func main() {
@@ -10,11 +13,31 @@ func main() {
 }
 
 func start() {
-	// Specify connection properties.
-
+	_ = godotenv.Load(".env")
 	r := gin.Default()
 
-	api.UserEndpoints(r)
-
+	// Agrega middleware CORS
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"*"}
+	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+	config.AllowHeaders = []string{"Access-Control-Allow-Origin", "Origin", "X-Requested-With", "Content-Type", "Accept", "access_token"}
+	r.Use(cors.New(config))
+	r.Use(middlewares.DBConnector())
+	r = SetupRouter(r)
+	getRoutes(r)
 	r.Run("localhost:8080")
+}
+
+func SetupRouter(r *gin.Engine) *gin.Engine {
+	r.GET("/ping", func(c *gin.Context) {
+		c.String(200, "pong")
+	})
+	return r
+}
+
+func getRoutes(r *gin.Engine) {
+	v1 := r.Group("/v1")
+	routes.UserRoutes(v1)
+	routes.SessionRoutes(v1)
+	routes.WordRoutes(v1)
 }
