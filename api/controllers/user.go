@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,7 +9,6 @@ import (
 	"github.com/words-reminder-api/api/drivers"
 	"github.com/words-reminder-api/api/models"
 	"github.com/words-reminder-api/helpers"
-	// "golang.org/x/perf/storage/db"
 )
 
 func CreateNewUser(c *gin.Context) {
@@ -25,9 +23,6 @@ func CreateNewUser(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, badResponse)
 		return
 	}
-
-	// fmt.Println("EMAIL", newUser.Email)
-	// fmt.Println("PASSWORD", newUser.Password)
 
 	if newUser.Email == "" || newUser.Password == "" {
 		badResponse.Code = code
@@ -75,10 +70,6 @@ func GetUsers(c *gin.Context) {
 		f.Limit = 25
 	}
 
-	fmt.Println("LIMIT:", f.Limit)
-
-	// f.Limit = limit
-	// f.Offset = offset
 	count, err := drivers.CountUsers(c, f)
 	if err != nil {
 		log.Warn(err, " | obtaining users count")

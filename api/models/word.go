@@ -73,8 +73,6 @@ func (w *Word) Fetch(c *gin.Context, f WordFilter) ([]*Word, error) {
 
 	q, params := fetchQueryBuilder(f)
 
-	// q := queries.SQLFetchWords
-
 	fmt.Println("query: ", q)
 	fmt.Println("params: ", params)
 

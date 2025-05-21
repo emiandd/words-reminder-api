@@ -16,7 +16,6 @@ func DBConnector() gin.HandlerFunc {
 
 		db, err := container.MYSQLConnector().Open(c)
 		if err != nil {
-			// log.Warn(err, " | error openning db connection")
 			badResponse.Code = http.StatusBadRequest
 			badResponse.Error = "error openning db connection"
 			c.IndentedJSON(http.StatusBadRequest, badResponse)
@@ -26,7 +25,6 @@ func DBConnector() gin.HandlerFunc {
 		fmt.Println("Success db connection!")
 		c.Keys = map[string]any{"conn": db}
 
-		// Llama al siguiente manejador
 		c.Next()
 
 		db.Close()

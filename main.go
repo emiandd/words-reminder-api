@@ -40,9 +40,4 @@ func getRoutes(r *gin.Engine) {
 	routes.UserRoutes(v1)
 	routes.SessionRoutes(v1)
 	routes.WordRoutes(v1)
-
-	// addPingRoutes(v1)
-
-	// v2 := router.Group("/v2")
-	// addPingRoutes(v2)
 }

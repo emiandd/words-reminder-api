@@ -36,7 +36,6 @@ func Authenticate() gin.HandlerFunc {
 		if err != nil || !token.Valid {
 			badResponse.Code = http.StatusUnauthorized
 			badResponse.Error = "unauthorized"
-			// c.IndentedJSON(http.StatusUnauthorized, badResponse)
 			c.AbortWithStatusJSON(badResponse.Code, badResponse)
 			return
 		}

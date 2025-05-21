@@ -44,8 +44,6 @@ func CreateNewWord(c *gin.Context) {
 
 	code = http.StatusCreated
 
-	// newWord = ""
-
 	var response models.Response
 	response.Code = code
 	response.Data = newWord

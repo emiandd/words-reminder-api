@@ -8,5 +8,4 @@ import (
 func SessionRoutes(rg *gin.RouterGroup) {
 	sr := rg.Group("/session")
 	sr.POST("/login/", controllers.Login)
-	sr.POST("/logout/", controllers.Logout)
 }

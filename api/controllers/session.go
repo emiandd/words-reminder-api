@@ -49,13 +49,11 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// buscar usuario en db
 	q := queries.SQLFindUser
 
 	var created []uint8
 
 	var uf models.User
-	// fmt.Println(uf)
 
 	fmt.Println("query", q)
 
@@ -82,10 +80,6 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// var layout string = "2023-04-08T20:48:01"
-
-	fmt.Println(string(created))
-
 	createdTime, err := time.Parse(time.DateTime, string(created))
 	if err != nil {
 		log.Warn(err, " | an error parsing date of creation")
@@ -97,17 +91,7 @@ func Login(c *gin.Context) {
 
 	uf.Created = createdTime
 
-	// fmt.Print(uf)
-
-	// comparar hash db con password recibida en request
-
-	// respuesta en caso de exito
-
-	// fmt.Println(uf.Password)
-	// fmt.Println(u.Password)
-
 	isPaswwordCheck := checkPasswordHash(u.Password, uf.Password)
-
 	if !isPaswwordCheck {
 		log.Warn(err, " | incorrect password")
 		badResponse.Code = code
@@ -138,15 +122,7 @@ func Login(c *gin.Context) {
 	response.Code = code
 	response.Data = ur
 
-	// c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-	// c.Writer.Header().Set("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
-	// c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type,Authorization")
-
 	c.IndentedJSON(http.StatusOK, response)
-}
-
-func Logout(c *gin.Context) {
-
 }
 
 func checkPasswordHash(password, hash string) bool {
