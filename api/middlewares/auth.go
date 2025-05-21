@@ -20,6 +20,7 @@ func Authenticate() gin.HandlerFunc {
 		if tokenString == "" {
 			badResponse.Code = http.StatusUnauthorized
 			badResponse.Error = "empty token"
+			c.AbortWithStatusJSON(badResponse.Code, badResponse)
 			return
 		}
 
