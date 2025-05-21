@@ -19,9 +19,7 @@ func CreateNewUser(c *gin.Context, newUser *models.User) error {
 
 	var container provider.ContainerRep = provider.GETContainer()
 
-	err = container.User().Create(c, hashedPassword)
-
-	// err = newUser.Create(c, hashedPassword)
+	err = container.User().Create(c, newUser.Email, hashedPassword)
 	if err != nil {
 		return err
 	}

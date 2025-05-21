@@ -18,14 +18,10 @@ func start() {
 
 	// Agrega middleware CORS
 	config := cors.DefaultConfig()
-	// config.AllowAllOrigins = true
 	config.AllowOrigins = []string{"*"}
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
-	config.AllowHeaders = []string{"Access-Control-Allow-Origin", "Origin", "X-Requested-With", "Content-Type", "Accept"}
+	config.AllowHeaders = []string{"Access-Control-Allow-Origin", "Origin", "X-Requested-With", "Content-Type", "Accept", "access_token"}
 	r.Use(cors.New(config))
-	r.Use(middlewares.Authenticate())
-
-	// r.Use(middlewares.Cors())
 	r.Use(middlewares.DBConnector())
 	r = SetupRouter(r)
 	getRoutes(r)

@@ -22,7 +22,7 @@ type UserFilter struct {
 }
 
 type UserRep interface {
-	Create(c *gin.Context, hashedPassword string) error
+	Create(c *gin.Context, email, hashedPassword string) error
 	Fetch(c *gin.Context, f UserFilter) ([]*User, error)
 	Count(c *gin.Context, f UserFilter) (int, error)
 }
@@ -31,7 +31,7 @@ var (
 	_ UserRep = &User{}
 )
 
-func (u *User) Create(c *gin.Context, hashedPassword string) error {
+func (u *User) Create(c *gin.Context, email, hashedPassword string) error {
 	db, ok := (c.Value("conn")).(*sql.DB)
 	if !ok {
 		return fmt.Errorf("error obtaining connection to database: %v", db)
@@ -41,7 +41,7 @@ func (u *User) Create(c *gin.Context, hashedPassword string) error {
 
 	u.Created = time.Now()
 
-	result, err := db.Exec(q, u.Email, hashedPassword, u.Created)
+	result, err := db.Exec(q, email, hashedPassword, u.Created)
 	if err != nil {
 		err = fmt.Errorf("error executing query: %s \n %v", q, err)
 		return err
