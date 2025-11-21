@@ -10,6 +10,7 @@ func fetchQueryBuilder(f WordFilter) (string, []interface{}) {
 		q = q + queries.SQLFromWordDomain
 		q = q + queries.SQLInnerJoinWord + queries.SQLWhere
 		q = q + " AND wd.user_id = ? "
+		q = q + " AND wd.status = 1 "
 		params = append(params, f.UserID)
 	} else {
 		q = q + queries.SQLFromWord + queries.SQLWhere

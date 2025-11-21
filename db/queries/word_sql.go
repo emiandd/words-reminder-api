@@ -44,4 +44,9 @@ const (
 	SQLLinkWordToUser = `
 	INSERT INTO word_domain (user_id, status, word_id)
 	VALUES (?, 1, ?)`
+
+	SQLDeleteWord = `
+	UPDATE word_domain
+	SET status = 0
+	WHERE user_id = ? AND word_id = ?`
 )

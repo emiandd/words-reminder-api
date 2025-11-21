@@ -34,6 +34,7 @@ type WordRep interface {
 	SearchByUserID(c *gin.Context, f WordFilter) (*Word, error)
 	Link(c *gin.Context, userID, wordID int64) error
 	Update(c *gin.Context) error
+	Delete(c *gin.Context, ID int) error
 }
 
 var (
@@ -193,5 +194,32 @@ func (w *Word) Link(c *gin.Context, userID, wordID int64) error {
 }
 
 func (w *Word) Update(c *gin.Context) error {
+	return nil
+}
+
+func (w *Word) Delete(c *gin.Context, ID int) error {
+	db, ok := (c.Value("conn")).(*sql.DB)
+	if !ok {
+		return fmt.Errorf("error obtaining connection to database: %v", db)
+	}
+
+	q := queries.SQLDeleteWord
+
+	result, err := db.Exec(q, ID)
+	if err != nil {
+		err = fmt.Errorf("error executing query: %s \n %v", q, err)
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		err = fmt.Errorf("error getting rows affected: %v", err)
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return errors.New("no rows affected")
+	}
+
 	return nil
 }
