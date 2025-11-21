@@ -25,7 +25,7 @@ func start() {
 	r.Use(middlewares.DBConnector())
 	r = SetupRouter(r)
 	getRoutes(r)
-	r.Run("localhost:8080")
+	r.Run("0.0.0.0:8080")
 }
 
 func SetupRouter(r *gin.Engine) *gin.Engine {
