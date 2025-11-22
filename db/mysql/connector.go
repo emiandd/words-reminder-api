@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"database/sql"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/words-reminder-api/db"
@@ -14,7 +15,7 @@ var (
 type Connector struct{}
 
 func (co Connector) Open(c *gin.Context) (*sql.DB, error) {
-	db, err := sql.Open("mysql", "root@tcp(127.0.0.1:3306)/wr_database")
+	db, err := sql.Open("mysql", os.Getenv("USER_DB")+"@tcp("+ os.Getenv("HOST_DB") +":"+ os.Getenv("PORT_DB") +")/"+os.Getenv("NAME_DB")+"?parseTime=true")
 	if err != nil {
 		return nil, err
 	}
